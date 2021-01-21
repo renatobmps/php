@@ -2,9 +2,9 @@
 
 namespace Alura\Banco\Models\Conta;
 
-class Conta
+abstract class Conta
 {
-    private float $saldo;
+    protected float $saldo;
     private Titular $titular;
     private static $numeroDeContas = 0;
 
@@ -22,16 +22,17 @@ class Conta
     }
     public function sacar(float $valorASacar): void
     {
-        if ($valorASacar > $this->saldo) {
+        $taxaDeJuros = $valorASacar * $this->percentualDeTarifa();
+        $valorParaSaque = $valorASacar + $taxaDeJuros;
+        if ($valorParaSaque > $this->saldo) {
             echo "Saldo insuficiente." . PHP_EOL;
             return;
         }
-        if ($valorASacar < 0) {
+        if ($valorParaSaque < 0) {
             echo "Só é permitido valores positivos." . PHP_EOL;
             return;
         }
-        $this->saldo -= $valorASacar;
-        echo "Saldo atual: R$ $this->saldo." . PHP_EOL;
+        $this->saldo -= $valorParaSaque;
     }
     public function depositar(float $valorADepositar): void
     {
@@ -40,7 +41,6 @@ class Conta
             return;
         }
         $this->saldo += $valorADepositar;
-        echo "Saldo atual: R$ $this->saldo." . PHP_EOL;
     }
     public function transferir(Conta $contaBeneficiario, float $valorATransferir): void
     {
@@ -70,4 +70,5 @@ class Conta
     {
         self::$numeroDeContas--;
     }
+    abstract protected function percentualDeTarifa(): float;
 }
